@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aspiro AI - Ingliz tilini o'rganish yordamchisi</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="/src/aspiro_ai.png" alt="Aspiro AI Logo" class="logo-img">
+                </div>
+                <h1 class="title">Aspiro AI</h1>
+                <p class="subtitle">Ingliz tilini o'rganish yordamchisi</p>
+            </div>
+            
+            <!-- Theme Toggle -->
+            <div class="theme-toggle">
+                <button id="themeToggle" class="theme-btn">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-message">
+                    <div class="ai-avatar">
+                        <img src="/src/aspiro_ai.png" alt="Aspiro AI" class="avatar-img">
+                    </div>
+                    <div class="message ai-message">
+                        <p>Salom! Men Aspiro AI man. Ingliz tili bo'yicha har qanday savolingizga javob beraman. Qanday yordam berishim mumkin? 🎓</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Buttons -->
+            <div class="quick-actions" id="quickActions">
+                <h3>Tez savollar</h3>
+                <div class="quick-buttons">
+                    <button class="quick-btn" data-question="Frazeologik fe'l nima? Misollar bilan tushuntirib bering.">
+                        <i class="fas fa-list-ul"></i>
+                        <span>Frazeologik fe'l</span>
+                    </button>
+                    <button class="quick-btn" data-question="Rasmdagi holatni qanday tasvirlash mumkin? Ingliz tilida rasm tasvirlash uchun foydali so'zlar va iboralarni ayting.">
+                        <i class="fas fa-image"></i>
+                        <span>Rasm tasvirlash</span>
+                    </button>
+                    <button class="quick-btn" data-question="IELTS yozma bo'yicha maslahatlar bering. Qanday qilib essay yozish kerak?">
+                        <i class="fas fa-pen-to-square"></i>
+                        <span>IELTS maslahatlar</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Toggle button to show quick actions again -->
+            <button class="quick-toggle" id="quickToggle">
+                <i class="fas fa-chevron-down"></i> Tez savollarni ko'rsatish
+            </button>
+
+            <!-- Input Section -->
+            <div class="input-section">
+                <div class="input-wrapper">
+                    <div class="input-container">
+                        <button class="action-btn" id="attachBtn" title="Fayl qo'shish">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <textarea id="messageInput" placeholder="Aspiro AI bilan suhbatlashing..." maxlength="2000" rows="1"></textarea>
+                        <button class="action-btn" id="voiceBtn" title="Ovozli xabar">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                        <button id="sendButton" class="send-btn" disabled>
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                    </div>
+                    <div class="input-footer">
+                        <span class="char-count">0/2000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="ai-avatar">
+                <img src="/src/aspiro_ai.png" alt="Aspiro AI" class="avatar-img">
+            </div>
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Home Button -->
+    <a href="/" class="home-button" title="Bosh sahifa">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <!-- Floating AI Assistant -->
+    <div class="floating-assistant" id="floatingAssistant">
+        <img src="/src/aspiro_ai.png" alt="Aspiro AI" class="floating-logo">
+    </div>
+    
+    <!-- Assistant Menu -->
+    <div class="assistant-menu" id="assistantMenu">
+        <div class="menu-header">
+            <div class="menu-logo">
+                <img src="/src/aspiro_ai.png" alt="Aspiro AI" class="menu-logo-img">
+            </div>
+            <div class="menu-title">
+                <h3>Aspiro AI</h3>
+                <p>Ingliz tili yordamchisi</p>
+            </div>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-items">
+            <button class="menu-item" id="newChatBtn">
+                <i class="fas fa-plus"></i>
+                <span>Yangi suhbat</span>
+            </button>
+            <button class="menu-item" id="chatHistoryBtn">
+                <i class="fas fa-history"></i>
+                <span>Suhbat tarixi</span>
+            </button>
+            <button class="menu-item" id="clearHistoryBtn">
+                <i class="fas fa-trash-alt"></i>
+                <span>Tarixni tozalash</span>
+            </button>
+            <button class="menu-item" id="settingsBtn">
+                <i class="fas fa-cog"></i>
+                <span>Sozlamalar</span>
+            </button>
+            <button class="menu-item" id="helpBtn">
+                <i class="fas fa-question-circle"></i>
+                <span>Yordam</span>
+            </button>
+            <button class="menu-item" id="aboutBtn">
+                <i class="fas fa-info-circle"></i>
+                <span>Dastur haqida</span>
+            </button>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-footer">
+            <span class="version-info">v1.0.0</span>
+        </div>
+    </div>
+    
+    <!-- Menu Overlay -->
+    <div class="menu-overlay" id="menuOverlay"></div>
+    
+    <!-- Modals -->
+    <div class="modal" id="chatHistoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-history"></i> Suhbat Tarixi</h3>
+                <button class="modal-close" id="closeHistoryModal">&times;</button>
+            </div>
+            <div class="modal-body" id="historyModalBody">
+                <!-- History content will be populated here -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Sozlamalar</h3>
+                <button class="modal-close" id="closeSettingsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="setting-label">
+                        <span>Tungi rejim</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="darkModeToggle">
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">
+                        <span>Ovozli javoblar</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="voiceResponseToggle">
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">
+                        <span>Avtomatik saqlash</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="autoSaveToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <label class="setting-label">
+                        <span>Chat tarixi limitı</span>
+                        <select id="historyLimitSelect" class="setting-select">
+                            <option value="25">25 xabar</option>
+                            <option value="50" selected>50 xabar</option>
+                            <option value="100">100 xabar</option>
+                            <option value="200">200 xabar</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="resetSettingsBtn">Standartni tiklash</button>
+                <button class="btn btn-primary" id="saveSettingsBtn">Saqlash</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="helpModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-question-circle"></i> Yordam va Ko'rsatmalar</h3>
+                <button class="modal-close" id="closeHelpModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-section">
+                    <h4>🎯 Asosiy Funksiyalar</h4>
+                    <ul>
+                        <li><strong>Suhbat:</strong> Ingliz tili haqida har qanday savol bering</li>
+                        <li><strong>Tez savollar:</strong> Tayyor mavzulardan tanlang</li>
+                        <li><strong>Ko'p qatorli xabar:</strong> Shift+Enter bilan yangi qator qo'shing</li>
+                    </ul>
+                </div>
+                <div class="help-section">
+                    <h4>⌨️ Klaviatura yorliqlari</h4>
+                    <div class="shortcuts">
+                        <div class="shortcut-item">
+                            <kbd>Enter</kbd>
+                            <span>Xabar yuborish</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Shift</kbd> + <kbd>Enter</kbd>
+                            <span>Yangi qator</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Ctrl</kbd> + <kbd>K</kbd>
+                            <span>Inputga fokus</span>
+                        </div>
+                        <div class="shortcut-item">
+                            <kbd>Esc</kbd>
+                            <span>Inputni tozalash</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="help-section">
+                    <h4>💡 Maslahatlar</h4>
+                    <ul>
+                        <li>Aniq savollar bering - yaxshi javoblar olasiz</li>
+                        <li>Misollar so'rang - amaliy ko'rsatmalar uchun</li>
+                        <li>IELTS, grammatika, lug'at bo'yicha yordam olishingiz mumkin</li>
+                        <li>O'zbek tilida tushuntirishlar olasiz</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/script.js"></script>
+</body>
+</html> 

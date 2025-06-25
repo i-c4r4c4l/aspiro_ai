@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aspiro AI - Ingliz Tilini O'rganish Yordamchisi</title>
+    <meta name="description" content="Aspiro AI - O'zbek talabalar uchun AI-ga asoslangan ingliz tili o'rganish platformasi. IELTS tayyorlash, grammatika, lug'at va amaliy mashqlar.">
+    <meta name="keywords" content="Aspiro AI, ingliz tili, IELTS, grammatika, o'zbek, AI yordamchisi">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Aspiro AI - Ingliz Tilini O'rganish Yordamchisi">
+    <meta property="og:description" content="AI-ga asoslangan ingliz tili o'rganish platformasi">
+    <meta property="og:image" content="/src/aspiro_ai.png">
+    <meta property="og:url" content="https://aspiro-ai.com">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/src/aspiro_ai.png">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="static/landing.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <img src="/src/aspiro_ai.png" alt="Aspiro AI" class="nav-logo">
+                <span class="nav-title">Aspiro AI</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#features" class="nav-link">Xususiyatlar</a>
+                <a href="#about" class="nav-link">Biz haqimizda</a>
+                <a href="/pricing" class="nav-link">Narxlar</a>
+                <a href="#contact" class="nav-link" onclick="scrollToContact(); return false;">Aloqa</a>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="/chat" class="nav-cta">Boshlaymiz</a>
+            </div>
+            <div class="mobile-menu-btn" id="mobileMenuBtn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-rocket"></i>
+                    <span>AI-ga asoslangan ta'lim platformasi</span>
+                </div>
+                <h1 class="hero-title">
+                    Ingliz tilini <span class="highlight">AI yordamchisi</span> bilan o'rganing
+                </h1>
+                <p class="hero-description">
+                    Aspiro AI - O'zbek talabalar uchun maxsus ishlab chiqilgan sun'iy intellekt yordamchisi. 
+                    IELTS tayyorlash, grammatika o'rganish va amaliy suhbat ko'nikmalarini rivojlantiring.
+                </p>
+                <div class="hero-buttons">
+                    <a href="/chat" class="btn btn-primary">
+                        <i class="fas fa-play"></i>
+                        Bepul boshlaymiz
+                    </a>
+                    <button class="btn btn-secondary" onclick="scrollToFeatures()">
+                        <i class="fas fa-info-circle"></i>
+                        Ko'proq ma'lumot
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">10,000+</span>
+                        <span class="stat-label">Talabalar</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">95%</span>
+                        <span class="stat-label">Muvaffaqiyat darajasi</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Mavjudlik</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-chat-demo">
+                    <div class="demo-header">
+                        <div class="demo-avatar">
+                            <img src="/src/aspiro_ai.png" alt="Aspiro AI">
+                        </div>
+                        <div class="demo-info">
+                            <h4>Aspiro AI</h4>
+                            <span>Ingliz tili yordamchisi</span>
+                        </div>
+                    </div>
+                    <div class="demo-messages">
+                        <div class="demo-message user">
+                            <span>IELTS Writing Task 1 haqida yordam bering</span>
+                        </div>
+                        <div class="demo-message ai">
+                            <span>Albatta! IELTS Writing Task 1 da siz ma'lumotlarni tahlil qilishingiz kerak...</span>
+                        </div>
+                    </div>
+                    <div class="demo-typing">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Nima uchun Aspiro AI?</h2>
+                <p>Zamonaviy AI texnologiyalari orqali ingliz tilini samarali o'rganing</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>IELTS Tayyorlash</h3>
+                    <p>To'liq IELTS tayyorlash dasturi: Writing, Speaking, Reading va Listening bo'limlari uchun maxsus mashqlar va maslahatlar.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3>Grammatika O'rganish</h3>
+                    <p>Ingliz tili grammatikasini bosqichma-bosqich o'rganing. Har bir qoida uchun misollar va amaliy mashqlar.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Suhbat Amaliyoti</h3>
+                    <p>AI yordamchisi bilan real vaqtda suhbatlashing va speaking ko'nikmalaringizni rivojlantiring.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-language"></i>
+                    </div>
+                    <h3>Lug'at va Tarjima</h3>
+                    <p>Keng qamrovli lug'at, tarjima xizmati va yangi so'zlarni o'rganish uchun interaktiv usullar.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Taraqqiyot Kuzatuvi</h3>
+                    <p>O'rganish jarayoningizni kuzatib boring va shaxsiy statistikalaringizni ko'ring.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>24/7 Mavjudlik</h3>
+                    <p>Istalgan vaqtda, istalgan joyda ingliz tilini o'rganing. AI yordamchisi doimo tayyorlikda.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Aspiro AI haqida</h2>
+                    <p>Aspiro AI - O'zbekiston talabalariga mo'ljallangan eng zamonaviy AI-ga asoslangan ingliz tili o'rganish platformasi. Bizning maqsadimiz har bir o'zbek talabaga sifatli ingliz tili ta'limini yetkazib berishdir.</p>
+                    
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>O'zbek tilidagi to'liq qo'llab-quvvatlash</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Mahalliy ta'lim tizimiga moslashtirilgan</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Zamonaviy AI texnologiyalari</span>
+                        </div>
+                        <div class="about-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Bepul va ochiq manba</span>
+                        </div>
+                    </div>
+
+                    <a href="/chat" class="btn btn-primary">Hoziroq boshlang</a>
+                </div>
+                <div class="about-visual">
+                    <div class="about-card">
+                        <div class="card-header">
+                            <div class="card-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h4>Ingliz tili darajangiz qanday?</h4>
+                            <div class="level-options">
+                                <button class="level-btn">Boshlang'ich</button>
+                                <button class="level-btn active">O'rta</button>
+                                <button class="level-btn">Yuqori</button>
+                            </div>
+                            <p>AI yordamchisi sizning darajangizga mos tarzda ta'lim beradi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ingliz tilini o'rganishni bugunoq boshlang!</h2>
+                <p>Minglab talabalar Aspiro AI bilan o'z maqsadlariga erishdilar. Endi sizning navbatingiz!</p>
+                <a href="/chat" class="btn btn-primary btn-large">
+                    <i class="fas fa-rocket"></i>
+                    Bepul boshlaymiz
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-brand">
+                        <img src="/src/aspiro_ai.png" alt="Aspiro AI" class="footer-logo">
+                        <span>Aspiro AI</span>
+                    </div>
+                    <p>O'zbek talabalar uchun AI-ga asoslangan ingliz tili o'rganish platformasi</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="/chat">Chatbot</a></li>
+                        <li><a href="#features">Xususiyatlar</a></li>
+                        <li><a href="#about">Biz haqimizda</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resurslar</h4>
+                    <ul>
+                        <li><a href="#">Yordam</a></li>
+                        <li><a href="#">API</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Aloqa</h4>
+                    <ul>
+                        <li><a href="mailto:info@aspiro-ai.com">info@aspiro-ai.com</a></li>
+                        <li><a href="tel:+998901234567">+998 90 123 45 67</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Aspiro AI. Barcha huquqlar himoyalangan.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="static/landing.js"></script>
+</body>
+</html> 
