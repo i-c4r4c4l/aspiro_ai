@@ -1109,7 +1109,7 @@ body {
     }
     
     .hero-chat-demo {
-        transform: none;
+        transform: perspective(1000px) rotateY(-12deg) rotateX(8deg);
         max-width: 400px;
         margin: 0 auto;
     }

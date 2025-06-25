@@ -234,60 +234,60 @@ body {
     animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
-.theme-toggle {
-    position: absolute;
-    top: 0;
-    right: 0;
-}
 
-/* Home Button - Fixed in top right corner */
-.home-button {
+
+/* Fixed Action Buttons Container */
+.fixed-action-buttons {
     position: fixed;
     top: 20px;
     right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.fixed-action-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 50px;
     height: 50px;
-    background: var(--primary-color);
-    color: white;
-    text-decoration: none;
     border-radius: 50%;
     font-size: 1.2rem;
     transition: all 0.2s ease;
-    z-index: 1000;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.fixed-action-btn.home-button {
+    background: var(--primary-color);
+    color: white;
     box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
-.home-button:hover {
+.fixed-action-btn.home-button:hover {
     background: var(--primary-dark);
     transform: translateY(-1px) scale(1.05);
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
     animation: gentleFloat 2s ease-in-out infinite;
 }
 
-.theme-btn {
+.fixed-action-btn.theme-btn {
     background: var(--white);
     border: 2px solid var(--gray-200);
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
     color: var(--text-primary);
-    font-size: 1.2rem;
 }
 
-.theme-btn:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: scale(1.1);
+.fixed-action-btn.theme-btn:hover {
+    background: var(--gray-100);
+    color: var(--primary-color);
+    transform: translateY(-1px) scale(1.05);
     animation: gentleFloat 2s ease-in-out infinite;
 }
+
+
 
 /* Chat Container */
 .chat-container {
@@ -1295,29 +1295,13 @@ input:checked + .toggle-slider:before {
         font-size: 0.85rem;
     }
 
-    .theme-toggle {
-        position: fixed;
-        top: 15px;
-        right: 70px;
-        z-index: 1000;
-        margin-top: 0;
-        opacity: 0.3;
-        transition: opacity 0.3s ease;
-    }
-    
-    .theme-toggle:hover {
-        opacity: 1;
-    }
-    
-    .theme-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
-    }
-    
-    .home-button {
+    .fixed-action-buttons {
         top: 15px;
         right: 15px;
+        gap: 8px;
+    }
+
+    .fixed-action-btn {
         width: 45px;
         height: 45px;
         font-size: 1.1rem;
@@ -1325,7 +1309,7 @@ input:checked + .toggle-slider:before {
         transition: opacity 0.3s ease;
     }
     
-    .home-button:hover {
+    .fixed-action-btn:hover {
         opacity: 1;
     }
 
@@ -1425,9 +1409,13 @@ input:checked + .toggle-slider:before {
         opacity: 1;
     }
     
-    .home-button {
+    .fixed-action-buttons {
         top: 10px;
         right: 10px;
+        gap: 6px;
+    }
+
+    .fixed-action-btn {
         width: 40px;
         height: 40px;
         font-size: 1rem;
@@ -1435,28 +1423,8 @@ input:checked + .toggle-slider:before {
         transition: opacity 0.3s ease;
     }
     
-    .home-button:hover {
+    .fixed-action-btn:hover {
         opacity: 1;
-    }
-    
-    .theme-toggle {
-        position: fixed;
-        top: 10px;
-        right: 60px;
-        z-index: 1000;
-        margin-top: 0;
-        opacity: 0.3;
-        transition: opacity 0.3s ease;
-    }
-    
-    .theme-toggle:hover {
-        opacity: 1;
-    }
-    
-    .theme-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
     }
     
     .assistant-menu {
@@ -1610,12 +1578,16 @@ input:checked + .toggle-slider:before {
         left: 8px;
     }
     
-    .home-button {
+    .fixed-action-buttons {
+        top: 8px;
+        right: 8px;
+        gap: 4px;
+    }
+
+    .fixed-action-btn {
         width: 36px;
         height: 36px;
         font-size: 0.9rem;
-        top: 8px;
-        right: 8px;
     }
     
     .assistant-menu {
