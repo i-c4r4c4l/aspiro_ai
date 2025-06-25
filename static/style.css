@@ -57,9 +57,7 @@
     content: url('/src/aspiro_ai_night.png');
 }
 
-[data-theme="dark"] .floating-logo {
-    content: url('/src/aspiro_ai_night.png');
-}
+
 
 [data-theme="dark"] .menu-logo-img {
     content: url('/src/aspiro_ai_night.png');
@@ -76,9 +74,9 @@
     border: 2px solid var(--gray-200);
 }
 
-[data-theme="dark"] .floating-assistant {
-    background: var(--gray-100) !important;
-    border: 2px solid var(--gray-200);
+/* Dark theme menu icon */
+[data-theme="dark"] .menu-line {
+    background: var(--gray-800);
 }
 
 [data-theme="dark"] .menu-logo {
@@ -234,60 +232,61 @@ body {
     animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
-
-
-/* Fixed Action Buttons Container */
-.fixed-action-buttons {
+.theme-toggle {
     position: fixed;
     top: 20px;
-    right: 20px;
-    display: flex;
-    gap: 10px;
+    right: 80px;
     z-index: 1000;
 }
 
-.fixed-action-btn {
+/* Home Button - Fixed in top right corner */
+.home-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 50px;
     height: 50px;
+    background: var(--primary-color);
+    color: white;
+    text-decoration: none;
     border-radius: 50%;
     font-size: 1.2rem;
     transition: all 0.2s ease;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.fixed-action-btn.home-button {
-    background: var(--primary-color);
-    color: white;
+    z-index: 1000;
     box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
 }
 
-.fixed-action-btn.home-button:hover {
+.home-button:hover {
     background: var(--primary-dark);
     transform: translateY(-1px) scale(1.05);
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
     animation: gentleFloat 2s ease-in-out infinite;
 }
 
-.fixed-action-btn.theme-btn {
+.theme-btn {
     background: var(--white);
     border: 2px solid var(--gray-200);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
     color: var(--text-primary);
+    font-size: 1.2rem;
 }
 
-.fixed-action-btn.theme-btn:hover {
-    background: var(--gray-100);
-    color: var(--primary-color);
-    transform: translateY(-1px) scale(1.05);
+.theme-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
     animation: gentleFloat 2s ease-in-out infinite;
 }
-
-
 
 /* Chat Container */
 .chat-container {
@@ -660,7 +659,7 @@ body {
     left: 20px;
     width: 50px;
     height: 50px;
-    background: white;
+    background: var(--primary-color);
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -669,26 +668,49 @@ body {
     box-shadow: var(--shadow-lg);
     z-index: 1001;
     transition: var(--transition);
-    color: white;
-    font-size: 1.5rem;
-    overflow: hidden;
-    border: 2px solid var(--gray-200);
+    border: 2px solid var(--primary-light);
 }
 
-.floating-logo {
-    position: absolute;
-    top: 0;
-    left: 0;
+/* Menu Icon (Hamburger) */
+.menu-icon {
+    width: 20px;
+    height: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.menu-line {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 10px;
+    height: 2px;
+    background: white;
+    border-radius: 1px;
+    transition: var(--transition);
+    transform-origin: center;
 }
 
 .floating-assistant:hover {
     transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.25);
+    background: var(--primary-dark);
     animation: gentleFloat 2s ease-in-out infinite;
+}
+
+.floating-assistant:hover .menu-line {
+    background: #f0f8ff;
+}
+
+/* Menu active state (when menu is open) */
+.floating-assistant.menu-open .menu-line:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+}
+
+.floating-assistant.menu-open .menu-line:nth-child(2) {
+    opacity: 0;
+}
+
+.floating-assistant.menu-open .menu-line:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
 }
 
 /* Assistant Menu */
@@ -1268,11 +1290,15 @@ input:checked + .toggle-slider:before {
     .floating-assistant {
         top: 15px;
         left: 15px;
-        width: 45px;
-        height: 45px;
-        font-size: 1.2rem;
+        width: 42px;
+        height: 42px;
         opacity: 0.3;
         transition: opacity 0.3s ease;
+    }
+    
+    .floating-assistant .menu-icon {
+        width: 16px;
+        height: 12px;
     }
     
     .floating-assistant:hover {
@@ -1295,21 +1321,37 @@ input:checked + .toggle-slider:before {
         font-size: 0.85rem;
     }
 
-    .fixed-action-buttons {
+    .theme-toggle {
+        position: fixed;
         top: 15px;
-        right: 15px;
-        gap: 8px;
-    }
-
-    .fixed-action-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
+        right: 70px;
+        z-index: 1000;
+        margin-top: 0;
         opacity: 0.3;
         transition: opacity 0.3s ease;
     }
     
-    .fixed-action-btn:hover {
+    .theme-toggle:hover {
+        opacity: 1;
+    }
+    
+    .theme-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 1rem;
+    }
+    
+    .home-button {
+        top: 15px;
+        right: 15px;
+        width: 42px;
+        height: 42px;
+        font-size: 1rem;
+        opacity: 0.3;
+        transition: opacity 0.3s ease;
+    }
+    
+    .home-button:hover {
         opacity: 1;
     }
 
@@ -1398,33 +1440,53 @@ input:checked + .toggle-slider:before {
     .floating-assistant {
         top: 10px;
         left: 10px;
-        width: 40px;
-        height: 40px;
-        font-size: 1.1rem;
+        width: 36px;
+        height: 36px;
         opacity: 0.3;
         transition: opacity 0.3s ease;
+    }
+    
+    .floating-assistant .menu-icon {
+        width: 14px;
+        height: 10px;
     }
     
     .floating-assistant:hover {
         opacity: 1;
     }
     
-    .fixed-action-buttons {
+    .home-button {
         top: 10px;
         right: 10px;
-        gap: 6px;
-    }
-
-    .fixed-action-btn {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
         opacity: 0.3;
         transition: opacity 0.3s ease;
     }
     
-    .fixed-action-btn:hover {
+    .home-button:hover {
         opacity: 1;
+    }
+    
+    .theme-toggle {
+        position: fixed;
+        top: 10px;
+        right: 50px;
+        z-index: 1000;
+        margin-top: 0;
+        opacity: 0.3;
+        transition: opacity 0.3s ease;
+    }
+    
+    .theme-toggle:hover {
+        opacity: 1;
+    }
+    
+    .theme-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
     }
     
     .assistant-menu {
@@ -1571,23 +1633,49 @@ input:checked + .toggle-slider:before {
     }
 
     .floating-assistant {
-        width: 36px;
-        height: 36px;
-        font-size: 1rem;
+        width: 32px;
+        height: 32px;
         top: 8px;
         left: 8px;
+        opacity: 0.3;
+        transition: opacity 0.3s ease;
     }
     
-    .fixed-action-buttons {
+    .floating-assistant .menu-icon {
+        width: 12px;
+        height: 9px;
+    }
+    
+    .floating-assistant:hover {
+        opacity: 1;
+    }
+    
+    .home-button {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
         top: 8px;
         right: 8px;
-        gap: 4px;
     }
-
-    .fixed-action-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 0.9rem;
+    
+    .theme-toggle {
+        position: fixed;
+        top: 8px;
+        right: 40px;
+        z-index: 1000;
+        margin-top: 0;
+        opacity: 0.3;
+        transition: opacity 0.3s ease;
+    }
+    
+    .theme-toggle:hover {
+        opacity: 1;
+    }
+    
+    .theme-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
     }
     
     .assistant-menu {
@@ -2196,5 +2284,739 @@ body::-webkit-scrollbar-thumb:hover {
     .btn-small {
         padding: 0.75rem;
         justify-content: center;
+    }
+}
+
+/* Voice Pronunciation Scorer Styles */
+.pronunciation-result {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    margin: 15px 0;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.result-header h3 {
+    margin: 0 0 15px 0;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.result-body {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+.score-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.score-circle.excellent {
+    border-color: #00ff88;
+    background: rgba(0, 255, 136, 0.2);
+}
+
+.score-circle.good {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.2);
+}
+
+.score-circle.needs-improvement {
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.2);
+}
+
+.score {
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.score-text {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.result-details {
+    flex: 1;
+}
+
+.result-details p {
+    margin: 8px 0;
+    font-size: 14px;
+}
+
+.feedback {
+    font-weight: bold;
+    margin-top: 10px !important;
+}
+
+.result-actions {
+    text-align: center;
+}
+
+.retry-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Pronunciation Practice Styles */
+.pronunciation-practice {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    text-align: center;
+    margin: 15px 0;
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+}
+
+.practice-word {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    letter-spacing: 2px;
+}
+
+.practice-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.practice-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.practice-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Listening Indicator */
+.listening-indicator {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.listening-animation {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.wave {
+    width: 4px;
+    height: 20px;
+    background: #667eea;
+    border-radius: 2px;
+    animation: wave 1.5s ease-in-out infinite;
+}
+
+.wave:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.wave:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes wave {
+    0%, 40%, 100% {
+        transform: scaleY(0.4);
+    }
+    20% {
+        transform: scaleY(1);
+    }
+}
+
+/* Voice Button Animation */
+.action-btn.listening {
+    background: #ff6b6b !important;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 107, 107, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 107, 107, 0);
+    }
+}
+
+/* Enhanced Quick Actions */
+.quick-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.quick-btn:hover::before {
+    left: 100%;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .result-body {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .practice-controls {
+        flex-direction: column;
+    }
+    
+    .practice-btn {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .practice-word {
+        font-size: 24px;
+    }
+}
+
+/* Camera Learning Styles */
+.camera-learning {
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    margin: 15px 0;
+    box-shadow: 0 8px 25px rgba(0, 210, 255, 0.3);
+}
+
+.camera-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.camera-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.camera-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.camera-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.image-processing, .image-result {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    margin: 15px 0;
+    text-align: center;
+}
+
+.image-preview {
+    margin: 15px 0;
+}
+
+.image-preview img {
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.learning-content {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 15px;
+    text-align: left;
+}
+
+/* Proverb Translation Styles */
+.proverb-translation {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    margin: 15px 0;
+    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.3);
+}
+
+.proverb-input {
+    margin: 20px 0;
+}
+
+.proverb-input textarea {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-size: 16px;
+    resize: vertical;
+    margin-bottom: 15px;
+}
+
+.proverb-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.proverb-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.proverb-examples {
+    margin-top: 20px;
+}
+
+.proverb-examples h4 {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.example-proverbs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.example-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    font-style: italic;
+}
+
+.example-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateX(10px);
+}
+
+.proverb-result {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    margin: 15px 0;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.original-proverb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    font-size: 18px;
+    text-align: center;
+    border-left: 4px solid rgba(255, 255, 255, 0.5);
+}
+
+.translation-content {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    line-height: 1.6;
+}
+
+.proverb-actions {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error Message Styles */
+.error-message {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    margin: 15px 0;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+}
+
+/* Enhanced Action Buttons */
+.action-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Responsive Design for New Features */
+@media (max-width: 768px) {
+    /* Pronunciation Features */
+    .pronunciation-result {
+        padding: 15px;
+        margin: 10px 0;
+    }
+    
+    .result-body {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .score-circle {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 15px;
+    }
+    
+    .practice-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .practice-btn {
+        width: 100%;
+        max-width: 200px;
+        padding: 12px 20px;
+    }
+    
+    .practice-word {
+        font-size: 20px;
+    }
+    
+    /* Camera Learning Features */
+    .camera-learning {
+        padding: 15px;
+        margin: 10px 0;
+    }
+    
+    .camera-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .camera-btn {
+        width: 100%;
+        max-width: 250px;
+        padding: 10px 15px;
+        font-size: 13px;
+    }
+    
+    .image-preview img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    .learning-content {
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    /* Proverb Translation Features */
+    .proverb-translation {
+        padding: 15px;
+        margin: 10px 0;
+    }
+    
+    .example-proverbs {
+        gap: 8px;
+    }
+    
+    .example-btn {
+        font-size: 13px;
+        padding: 8px 12px;
+        text-align: center;
+    }
+    
+    .proverb-input textarea {
+        font-size: 14px;
+        padding: 12px;
+    }
+    
+    .proverb-btn {
+        width: 100%;
+        max-width: 200px;
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+    
+    .original-proverb {
+        font-size: 16px;
+        padding: 12px;
+    }
+    
+    .translation-content {
+        padding: 12px;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+}
+
+/* Mobile Responsive - 480px */
+@media (max-width: 480px) {
+    /* Pronunciation Features */
+    .pronunciation-result {
+        padding: 12px;
+        margin: 8px 0;
+    }
+    
+    .score-circle {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .score {
+        font-size: 16px;
+    }
+    
+    .practice-word {
+        font-size: 18px;
+    }
+    
+    .practice-btn {
+        padding: 10px 15px;
+        font-size: 13px;
+    }
+    
+    /* Camera Learning Features */
+    .camera-learning {
+        padding: 12px;
+        margin: 8px 0;
+    }
+    
+    .camera-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .learning-content {
+        padding: 10px;
+        font-size: 13px;
+    }
+    
+    /* Proverb Translation Features */
+    .proverb-translation {
+        padding: 12px;
+        margin: 8px 0;
+    }
+    
+    .example-btn {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+    
+    .proverb-input textarea {
+        font-size: 13px;
+        padding: 10px;
+    }
+    
+    .proverb-btn {
+        padding: 8px 15px;
+        font-size: 13px;
+    }
+    
+    .original-proverb {
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    .translation-content {
+        padding: 10px;
+        font-size: 13px;
+    }
+}
+
+/* Small Mobile Responsive - 360px */
+@media (max-width: 360px) {
+    /* Pronunciation Features */
+    .pronunciation-result {
+        padding: 10px;
+        margin: 5px 0;
+    }
+    
+    .score-circle {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .score {
+        font-size: 14px;
+    }
+    
+    .practice-word {
+        font-size: 16px;
+    }
+    
+    .practice-btn {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    /* Camera Learning Features */
+    .camera-learning {
+        padding: 10px;
+        margin: 5px 0;
+    }
+    
+    .camera-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+    
+    .learning-content {
+        padding: 8px;
+        font-size: 12px;
+    }
+    
+    /* Proverb Translation Features */
+    .proverb-translation {
+        padding: 10px;
+        margin: 5px 0;
+    }
+    
+    .example-btn {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+    
+    .proverb-input textarea {
+        font-size: 12px;
+        padding: 8px;
+    }
+    
+    .proverb-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .original-proverb {
+        font-size: 13px;
+        padding: 8px;
+    }
+    
+    .translation-content {
+        padding: 8px;
+        font-size: 12px;
+    }
+}
+
+/* Touch-friendly enhancements for mobile */
+@media (max-width: 768px) and (pointer: coarse) {
+    /* Increase touch targets for better accessibility */
+    .practice-btn, .camera-btn, .proverb-btn, .example-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Reduce hover effects on touch devices */
+    .camera-btn:hover, .proverb-btn:hover, .example-btn:hover {
+        transform: none;
+    }
+    
+    /* Better spacing for touch interactions */
+    .camera-controls, .practice-controls {
+        gap: 15px;
+    }
+    
+    .example-proverbs {
+        gap: 12px;
     }
 }

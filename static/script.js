@@ -3,7 +3,7 @@ const chatMessages = document.getElementById('chatMessages');
 const messageInput = document.getElementById('messageInput');
 const sendButton = document.getElementById('sendButton');
 const quickButtons = document.querySelectorAll('.quick-btn');
-const themeToggle = document.getElementById('themeToggleFixed');
+const themeToggle = document.getElementById('themeToggle');
 const typingIndicator = document.getElementById('typingIndicator');
 const floatingAssistant = document.getElementById('floatingAssistant');
 const charCount = document.querySelector('.char-count');
@@ -25,14 +25,23 @@ let isRecording = false;
 let mediaRecorder = null;
 let audioChunks = [];
 
+// Utility function to detect mobile devices
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (window.innerWidth <= 768) ||
+           ('ontouchstart' in window);
+}
+
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
     initializeTheme();
     loadChatHistory();
     setupEventListeners();
     
-    // Focus input on load
-    messageInput.focus();
+    // Only focus input on load for non-mobile devices
+    if (!isMobileDevice()) {
+        messageInput.focus();
+    }
 });
 
 // Theme Management
@@ -184,10 +193,12 @@ function setupEventListeners() {
     
     // Keyboard shortcuts
     document.addEventListener('keydown', function(e) {
-        // Ctrl+K to focus input
+        // Ctrl+K to focus input (only on non-mobile devices)
         if (e.ctrlKey && e.key === 'k') {
             e.preventDefault();
-            messageInput.focus();
+            if (!isMobileDevice()) {
+                messageInput.focus();
+            }
         }
         
         // Escape to clear input or close modals
@@ -268,7 +279,10 @@ async function sendMessage(message) {
     } finally {
         // Re-enable input
         setInputState(true);
-        messageInput.focus();
+        // Only focus on non-mobile devices to prevent unwanted keyboard popup
+        if (!isMobileDevice()) {
+            messageInput.focus();
+        }
     }
 }
 
@@ -445,12 +459,14 @@ function toggleAssistantMenu() {
 function openAssistantMenu() {
     assistantMenu.classList.add('show');
     menuOverlay.classList.add('show');
+    floatingAssistant.classList.add('menu-open');
     document.body.style.overflow = 'hidden';
 }
 
 function closeAssistantMenu() {
     assistantMenu.classList.remove('show');
     menuOverlay.classList.remove('show');
+    floatingAssistant.classList.remove('menu-open');
     document.body.style.overflow = 'auto';
 }
 
@@ -619,7 +635,10 @@ function loadHistoryMessage(index) {
         if (message.sender === 'user') {
             messageInput.value = message.message;
             hideModal('chatHistoryModal');
-            messageInput.focus();
+            // Only focus on non-mobile devices to prevent unwanted keyboard popup
+            if (!isMobileDevice()) {
+                messageInput.focus();
+            }
             showNotification('Xabar matn maydoniga yuklandi!');
         } else {
             // If it's an AI message, just close the modal
@@ -648,8 +667,10 @@ function startNewChat() {
         messageInput.value = '';
         sendButton.disabled = true;
         
-        // Focus input
-        messageInput.focus();
+        // Only focus on non-mobile devices to prevent unwanted keyboard popup
+        if (!isMobileDevice()) {
+            messageInput.focus();
+        }
         
         showNotification('Yangi suhbat boshlandi!');
     }
@@ -778,10 +799,12 @@ function formatMessage(text) {
 
 // Keyboard Shortcuts
 document.addEventListener('keydown', function(e) {
-    // Ctrl/Cmd + K to focus input
+    // Ctrl/Cmd + K to focus input (only on non-mobile devices)
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        messageInput.focus();
+        if (!isMobileDevice()) {
+            messageInput.focus();
+        }
     }
     
     // Escape to clear input
@@ -1491,7 +1514,10 @@ async function sendMessageWithAttachments(message) {
         addErrorMessage('Xatolik yuz berdi. Iltimos, qaytadan urinib ko\'ring.');
     } finally {
         setInputState(true);
-        messageInput.focus();
+        // Only focus on non-mobile devices to prevent unwanted keyboard popup
+        if (!isMobileDevice()) {
+            messageInput.focus();
+        }
     }
 }
 
@@ -1566,4 +1592,499 @@ window.addEventListener('unhandledrejection', function(event) {
 });
 
 // Initial input state
-sendButton.disabled = true; 
+sendButton.disabled = true;
+
+// Voice Recognition and Pronunciation Scoring
+class VoicePronunciationScorer {
+    constructor() {
+        this.recognition = null;
+        this.isListening = false;
+        this.targetWord = '';
+        this.initializeVoiceRecognition();
+    }
+
+    initializeVoiceRecognition() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            console.log('Speech recognition not supported');
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        this.recognition = new SpeechRecognition();
+        this.recognition.continuous = false;
+        this.recognition.interimResults = false;
+        this.recognition.lang = 'en-US';
+
+        this.recognition.onresult = (event) => {
+            const spokenText = event.results[0][0].transcript.toLowerCase();
+            this.analyzePronunciation(spokenText);
+        };
+
+        this.recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+            this.stopListening();
+        };
+
+        this.recognition.onend = () => {
+            this.stopListening();
+        };
+    }
+
+    startListening(targetWord) {
+        if (!this.recognition) {
+            alert('Ovozni tanish qo\'llab-quvvatlanmaydi');
+            return;
+        }
+
+        this.targetWord = targetWord.toLowerCase();
+        this.isListening = true;
+        this.recognition.start();
+        
+        // Update UI
+        const voiceBtn = document.getElementById('voiceBtn');
+        if (voiceBtn) {
+            voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+            voiceBtn.classList.add('listening');
+        }
+        
+        // Show listening indicator
+        this.showListeningIndicator();
+    }
+
+    stopListening() {
+        this.isListening = false;
+        if (this.recognition) {
+            this.recognition.stop();
+        }
+        
+        // Reset UI
+        const voiceBtn = document.getElementById('voiceBtn');
+        if (voiceBtn) {
+            voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            voiceBtn.classList.remove('listening');
+        }
+        this.hideListeningIndicator();
+    }
+
+    analyzePronunciation(spokenText) {
+        // Simple pronunciation scoring algorithm
+        const similarity = this.calculateSimilarity(spokenText, this.targetWord);
+        const score = Math.round(similarity * 100);
+        
+        this.displayPronunciationResult(spokenText, score);
+    }
+
+    calculateSimilarity(spoken, target) {
+        // Levenshtein distance-based similarity
+        const matrix = [];
+        const n = spoken.length;
+        const m = target.length;
+
+        if (n === 0) return m === 0 ? 1 : 0;
+        if (m === 0) return 0;
+
+        // Initialize matrix
+        for (let i = 0; i <= n; i++) {
+            matrix[i] = [i];
+        }
+        for (let j = 0; j <= m; j++) {
+            matrix[0][j] = j;
+        }
+
+        // Fill matrix
+        for (let i = 1; i <= n; i++) {
+            for (let j = 1; j <= m; j++) {
+                if (spoken[i - 1] === target[j - 1]) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1,
+                        matrix[i][j - 1] + 1,
+                        matrix[i - 1][j] + 1
+                    );
+                }
+            }
+        }
+
+        const maxLength = Math.max(n, m);
+        return (maxLength - matrix[n][m]) / maxLength;
+    }
+
+    displayPronunciationResult(spokenText, score) {
+        const resultHtml = `
+            <div class="pronunciation-result">
+                <div class="result-header">
+                    <h3>🎤 Talaffuz natijasi</h3>
+                </div>
+                <div class="result-body">
+                    <div class="score-circle ${score >= 80 ? 'excellent' : score >= 60 ? 'good' : 'needs-improvement'}">
+                        <span class="score">${score}</span>
+                        <span class="score-text">%</span>
+                    </div>
+                    <div class="result-details">
+                        <p><strong>Siz aytdingiz:</strong> "${spokenText}"</p>
+                        <p><strong>Maqsad so'z:</strong> "${this.targetWord}"</p>
+                        <p class="feedback">${this.getFeedback(score)}</p>
+                    </div>
+                </div>
+                <div class="result-actions">
+                    <button onclick="voiceScorer.startListening('${this.targetWord}')" class="retry-btn">
+                        <i class="fas fa-redo"></i> Qayta urinish
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        this.appendToChat(resultHtml);
+    }
+
+    getFeedback(score) {
+        if (score >= 90) return "🎉 Ajoyib! Talaffuzingiz mukammal!";
+        if (score >= 80) return "😊 Yaxshi! Talaffuzingiz juda yaxshi!";
+        if (score >= 60) return "👍 Yaxshi! Biroz mashq qilsangiz yanada yaxshi bo'ladi.";
+        if (score >= 40) return "💪 Yaxshi harakat! Qayta urinib ko'ring.";
+        return "🤔 Qayta urinib ko'ring. Sekinroq va aniqroq gapiring.";
+    }
+
+    showListeningIndicator() {
+        const indicator = document.createElement('div');
+        indicator.id = 'listeningIndicator';
+        indicator.className = 'listening-indicator';
+        indicator.innerHTML = `
+            <div class="listening-animation">
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
+            </div>
+            <p>Gapiring... 🎤</p>
+        `;
+        document.body.appendChild(indicator);
+    }
+
+    hideListeningIndicator() {
+        const indicator = document.getElementById('listeningIndicator');
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+
+    appendToChat(html) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ai-message';
+        messageDiv.innerHTML = html;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+}
+
+// Initialize voice scorer
+const voiceScorer = new VoicePronunciationScorer();
+
+// Add pronunciation practice button to quick actions
+document.addEventListener('DOMContentLoaded', function() {
+    // Add new quick action button for pronunciation practice
+    const quickButtons = document.querySelector('.quick-buttons');
+    if (quickButtons) {
+        const pronunciationBtn = document.createElement('button');
+        pronunciationBtn.className = 'quick-btn';
+        pronunciationBtn.innerHTML = `
+            <i class="fas fa-microphone"></i>
+            <span>Talaffuz amaliyoti</span>
+        `;
+        pronunciationBtn.onclick = () => startPronunciationPractice();
+        quickButtons.appendChild(pronunciationBtn);
+
+        // Add camera learning button
+        const cameraBtn = document.createElement('button');
+        cameraBtn.className = 'quick-btn';
+        cameraBtn.innerHTML = `
+            <i class="fas fa-camera"></i>
+            <span>Rasm orqali o'rganish</span>
+        `;
+        cameraBtn.onclick = () => startCameraLearning();
+        quickButtons.appendChild(cameraBtn);
+
+        // Add proverb translation button
+        const proverbBtn = document.createElement('button');
+        proverbBtn.className = 'quick-btn';
+        proverbBtn.innerHTML = `
+            <i class="fas fa-quote-right"></i>
+            <span>Maqol tarjimasi</span>
+        `;
+        proverbBtn.onclick = () => startProverbTranslation();
+        quickButtons.appendChild(proverbBtn);
+    }
+});
+
+function startPronunciationPractice() {
+    const words = ['hello', 'world', 'beautiful', 'education', 'pronunciation', 'excellent'];
+    const randomWord = words[Math.floor(Math.random() * words.length)];
+    
+    const practiceHtml = `
+        <div class="pronunciation-practice">
+            <h3>🎤 Talaffuz amaliyoti</h3>
+            <p>Quyidagi so'zni ayting:</p>
+            <div class="practice-word">${randomWord}</div>
+            <div class="practice-controls">
+                <button onclick="voiceScorer.startListening('${randomWord}')" class="practice-btn">
+                    <i class="fas fa-microphone"></i> Boshlash
+                </button>
+                <button onclick="playPronunciation('${randomWord}')" class="practice-btn">
+                    <i class="fas fa-volume-up"></i> Tinglash
+                </button>
+            </div>
+        </div>
+    `;
+    
+    voiceScorer.appendToChat(practiceHtml);
+}
+
+function playPronunciation(word) {
+    // Use Web Speech API to pronounce the word
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.8;
+        speechSynthesis.speak(utterance);
+    }
+}
+
+// Camera Learning Feature
+function startCameraLearning() {
+    const cameraHtml = `
+        <div class="camera-learning">
+            <h3>📸 Rasm orqali o'rganish</h3>
+            <p>Biror narsaning rasmini oling va ingliz tilini o'rganing!</p>
+            <div class="camera-container">
+                <video id="cameraVideo" style="display:none;" width="300" height="200"></video>
+                <canvas id="cameraCanvas" style="display:none;" width="300" height="200"></canvas>
+                <div class="camera-controls">
+                    <input type="file" id="imageInput" accept="image/*" style="display:none;">
+                    <button onclick="openCamera()" class="camera-btn">
+                        <i class="fas fa-camera"></i> Kameradan rasm olish
+                    </button>
+                    <button onclick="document.getElementById('imageInput').click()" class="camera-btn">
+                        <i class="fas fa-image"></i> Rasm tanlash
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    voiceScorer.appendToChat(cameraHtml);
+    
+    // Handle file input with a small delay to ensure DOM is ready
+    setTimeout(() => {
+        const imageInput = document.getElementById('imageInput');
+        if (imageInput) {
+            imageInput.onchange = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    processImage(file);
+                }
+            };
+        }
+    }, 100);
+}
+
+function openCamera() {
+    const video = document.getElementById('cameraVideo');
+    if (!video) {
+        alert('Video element not found');
+        return;
+    }
+    video.style.display = 'block';
+    
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+            video.srcObject = stream;
+            video.play();
+            
+            // Add capture button
+            const captureBtn = document.createElement('button');
+            captureBtn.className = 'camera-btn';
+            captureBtn.innerHTML = '<i class="fas fa-camera"></i> Rasmga tushirish';
+            captureBtn.onclick = () => captureImage(stream);
+            video.parentNode.appendChild(captureBtn);
+        })
+        .catch(err => {
+            alert('Kameraga ruxsat berilmadi: ' + err.message);
+        });
+}
+
+function captureImage(stream) {
+    const video = document.getElementById('cameraVideo');
+    const canvas = document.getElementById('cameraCanvas');
+    if (!video || !canvas) {
+        alert('Camera elements not found');
+        return;
+    }
+    const ctx = canvas.getContext('2d');
+    
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Stop camera
+    stream.getTracks().forEach(track => track.stop());
+    video.style.display = 'none';
+    
+    // Convert to blob and process
+    canvas.toBlob(blob => {
+        processImage(blob);
+    }, 'image/jpeg', 0.8);
+}
+
+function processImage(imageFile) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const imageData = e.target.result;
+        
+        // Show loading
+        const loadingHtml = `
+            <div class="image-processing">
+                <h3>🔍 Rasmni tahlil qilmoqda...</h3>
+                <div class="loading-spinner"></div>
+                <p>Biroz kuting, rasmingizni o'rganmoqda...</p>
+            </div>
+        `;
+        voiceScorer.appendToChat(loadingHtml);
+        
+        // Send to backend (simplified version)
+        // In production, you'd send the actual image data
+        fetch('/image-learn', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                image_data: imageData.split(',')[1] // base64 data
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            const resultHtml = `
+                <div class="image-result">
+                    <h3>📸 Rasm natijasi</h3>
+                    <div class="image-preview">
+                        <img src="${imageData}" alt="Analyzed image" style="max-width: 200px; border-radius: 10px;">
+                    </div>
+                    <div class="learning-content">
+                        ${data.response}
+                    </div>
+                </div>
+            `;
+            voiceScorer.appendToChat(resultHtml);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            voiceScorer.appendToChat(`
+                <div class="error-message">
+                    <h3>❌ Xatolik</h3>
+                    <p>Rasmni tahlil qilishda xatolik yuz berdi. Qayta urinib ko'ring.</p>
+                </div>
+            `);
+        });
+    };
+    reader.readAsDataURL(imageFile);
+}
+
+// Proverb Translation Feature
+function startProverbTranslation() {
+    const proverbHtml = `
+        <div class="proverb-translation">
+            <h3>📜 O'zbek maqollarini ingliz tiliga tarjima qilish</h3>
+            <p>O'zbek maqolini kiriting va uning ingliz ekvivalentini bilib oling:</p>
+            <div class="proverb-input">
+                <textarea id="proverbInput" placeholder="Masalan: 'Mehnat - baxt kaliti'" rows="3"></textarea>
+                <button onclick="translateProverb()" class="proverb-btn">
+                    <i class="fas fa-language"></i> Tarjima qilish
+                </button>
+            </div>
+            <div class="proverb-examples">
+                <h4>Mashhur maqollar:</h4>
+                <div class="example-proverbs">
+                    <button onclick="useExampleProverb('Ilm olish - beshikdan qabrgacha')" class="example-btn">
+                        "Ilm olish - beshikdan qabrgacha"
+                    </button>
+                    <button onclick="useExampleProverb('Sabr tubi - sarg\'ish')" class="example-btn">
+                        "Sabr tubi - sarg'ish"
+                    </button>
+                    <button onclick="useExampleProverb('Mehr - eng katta boylik')" class="example-btn">
+                        "Mehr - eng katta boylik"
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    voiceScorer.appendToChat(proverbHtml);
+}
+
+function useExampleProverb(proverb) {
+    const proverbInput = document.getElementById('proverbInput');
+    if (proverbInput) {
+        proverbInput.value = proverb;
+    }
+}
+
+function translateProverb() {
+    const proverbInput = document.getElementById('proverbInput');
+    if (!proverbInput) {
+        alert('Proverb input not found');
+        return;
+    }
+    
+    const proverbText = proverbInput.value.trim();
+    
+    if (!proverbText) {
+        alert('Maqol kiriting!');
+        return;
+    }
+    
+    // Show loading
+    const loadingHtml = `
+        <div class="proverb-processing">
+            <h3>🔄 Maqolni tarjima qilmoqda...</h3>
+            <div class="loading-spinner"></div>
+        </div>
+    `;
+    voiceScorer.appendToChat(loadingHtml);
+    
+    fetch('/proverb-translate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            uzbek_proverb: proverbText
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const resultHtml = `
+            <div class="proverb-result">
+                <h3>📜 Maqol tarjimasi</h3>
+                <div class="original-proverb">
+                    <strong>O'zbek maqol:</strong> "${proverbText}"
+                </div>
+                <div class="translation-content">
+                    ${data.response}
+                </div>
+                <div class="proverb-actions">
+                    <button onclick="startProverbTranslation()" class="action-btn">
+                        <i class="fas fa-plus"></i> Yana
+                    </button>
+                </div>
+            </div>
+        `;
+        voiceScorer.appendToChat(resultHtml);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        voiceScorer.appendToChat(`
+            <div class="error-message">
+                <h3>❌ Xatolik</h3>
+                <p>Maqolni tarjima qilishda xatolik yuz berdi. Qayta urinib ko'ring.</p>
+            </div>
+        `);
+    });
+} 
