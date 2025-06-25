@@ -1364,8 +1364,8 @@ body {
     }
     
     .hero-chat-demo {
-        transform: scale(0.95);
-        margin: 0 auto;
+        transform: scale(0.95) perspective(1000px) rotateY(-10deg) rotateX(5deg);
+        margin: -50px auto 0 auto;
         max-width: 320px;
     }
     
@@ -1546,7 +1546,8 @@ body {
     }
     
     .hero-chat-demo {
-        transform: scale(0.9);
+        transform: scale(0.9) perspective(1000px) rotateY(-8deg) rotateX(3deg);
+        margin: -60px auto 0 auto;
         max-width: 280px;
     }
     
