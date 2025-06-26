@@ -2245,15 +2245,17 @@ function translateProverb() {
     
     fetch('/proverb-translate', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
             uzbek_proverb: proverbText
         })
     })
     .then(response => response.json())
     .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
         const resultHtml = `
             <div class="proverb-result">
                 <h3>📜 Maqol tarjimasi</h3>
@@ -2261,7 +2263,7 @@ function translateProverb() {
                     <strong>O'zbek maqol:</strong> "${proverbText}"
                 </div>
                 <div class="translation-content">
-                    ${data.response}
+                    ${data.proverb_analysis}
                 </div>
                 <div class="proverb-actions">
                     <button onclick="startProverbTranslation()" class="action-btn">
