@@ -35,55 +35,60 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # JWT Security
 security = HTTPBearer()
 
-# Database setup
-DATABASE_URL = "users.db"
+# Database setup - handle both local and serverless environments
+DATABASE_URL = os.getenv("DATABASE_URL", "/tmp/users.db") if os.getenv("VERCEL") else "users.db"
 
 def init_database():
     """Initialize SQLite database for users"""
-    conn = sqlite3.connect(DATABASE_URL)
-    cursor = conn.cursor()
-    
-    # Create users table
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL,
-            full_name TEXT NOT NULL,
-            hashed_password TEXT NOT NULL,
-            is_active BOOLEAN DEFAULT TRUE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            last_login TIMESTAMP,
-            subscription_plan TEXT DEFAULT 'free',
-            subscription_expires TIMESTAMP
-        )
-    """)
-    
-    # Create chat sessions table for user history
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS chat_sessions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            session_title TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )
-    """)
-    
-    # Create chat messages table
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS chat_messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id INTEGER NOT NULL,
-            user_message TEXT NOT NULL,
-            ai_response TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (session_id) REFERENCES chat_sessions (id)
-        )
-    """)
-    
-    conn.commit()
-    conn.close()
+    try:
+        conn = sqlite3.connect(DATABASE_URL)
+        cursor = conn.cursor()
+        
+        # Create users table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE NOT NULL,
+                full_name TEXT NOT NULL,
+                hashed_password TEXT NOT NULL,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                last_login TIMESTAMP,
+                subscription_plan TEXT DEFAULT 'free',
+                subscription_expires TIMESTAMP
+            )
+        """)
+        
+        # Create chat sessions table for user history
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS chat_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                session_title TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        """)
+        
+        # Create chat messages table
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS chat_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id INTEGER NOT NULL,
+                user_message TEXT NOT NULL,
+                ai_response TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (session_id) REFERENCES chat_sessions (id)
+            )
+        """)
+        
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Database initialization error: {e}")
+        # In serverless environment, database might be read-only
+        pass
 
 # Initialize database on startup
 init_database()
@@ -97,14 +102,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/src", StaticFiles(directory="src"), name="src")
+# Mount static files - handle both local and serverless environments
+try:
+    if os.path.exists("static"):
+        app.mount("/static", StaticFiles(directory="static"), name="static")
+    if os.path.exists("src"):
+        app.mount("/src", StaticFiles(directory="src"), name="src")
+except Exception as e:
+    print(f"Static files mounting error: {e}")
+    # In serverless environment, static files might be handled differently
 
 # OpenAI configuration
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY") or os.getenv("REPLIT_SECRET")
-)
+try:
+    api_key = os.getenv("OPENAI_API_KEY") or os.getenv("REPLIT_SECRET")
+    if not api_key:
+        print("Warning: No OpenAI API key found. Chat functionality will be limited.")
+        client = None
+    else:
+        client = OpenAI(api_key=api_key)
+except Exception as e:
+    print(f"OpenAI client initialization error: {e}")
+    client = None
 
 # Pydantic models
 class UserCreate(BaseModel):
@@ -562,7 +580,7 @@ async def chat_with_files(
 async def process_chat_message(user_message: str, files: List[UploadFile], current_user: dict):
     """Process chat message with optional files (now includes user context)"""
     try:
-        if not client.api_key:
+        if not client or not hasattr(client, 'api_key') or not client.api_key:
             return ChatResponse(response="Kechirasiz, hozircha xizmat ishlamayapti. Iltimos, keyinroq qayta urinib ko'ring.")
         
         # Validate message
