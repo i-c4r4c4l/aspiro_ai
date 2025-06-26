@@ -85,9 +85,6 @@ def init_database():
     conn.commit()
     conn.close()
 
-# Initialize database on startup
-init_database()
-
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -96,6 +93,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Startup event
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database on application startup"""
+    init_database()
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -719,8 +722,31 @@ async def get_chat_history(current_user: dict = Depends(get_current_user)):
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
-    return {"status": "OK", "service": "Aspiro AI"}
+    """Health check endpoint for Railway deployment"""
+    try:
+        # Test database connectivity
+        conn = sqlite3.connect(DATABASE_URL)
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        cursor.fetchone()
+        conn.close()
+        
+        return {
+            "status": "OK", 
+            "service": "Aspiro AI",
+            "database": "connected",
+            "timestamp": datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        # Return 503 Service Unavailable if database is not ready
+        from fastapi import HTTPException
+        raise HTTPException(status_code=503, detail={
+            "status": "UNHEALTHY",
+            "service": "Aspiro AI", 
+            "database": "disconnected",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat()
+        })
 
 # Protected specialized learning endpoints
 @app.post("/pronunciation")
