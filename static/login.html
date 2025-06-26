@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirish - Aspiro AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            /* Light theme (default) */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-form: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-muted: #9ca3af;
+            --border-color: #e5e7eb;
+            --border-hover: #667eea;
+            --input-bg: #ffffff;
+            --input-border: #d1d5db;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+        
+        [data-theme="dark"] {
+            /* Dark theme */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-form: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #d1d5db;
+            --text-muted: #888888;
+            --border-color: #222222;
+            --border-hover: #667eea;
+            --input-bg: #1a1a1a;
+            --input-border: #333333;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .auth-logo {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .auth-logo img {
+            width: 32px;
+            height: 32px;
+            object-fit: cover;
+        }
+        
+        .auth-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+        
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 400;
+        }
+        
+        .auth-form {
+            background: var(--bg-form);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--border-hover);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-input.error {
+            border-color: #ef4444;
+        }
+        
+        .password-field {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+        }
+        
+        .password-toggle:hover {
+            color: var(--text-secondary);
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+        
+        .success-message {
+            color: #22c55e;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+        
+        .auth-button {
+            width: 100%;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 24px 0 20px 0;
+            position: relative;
+        }
+        
+        .auth-button:hover:not(:disabled) {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .auth-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .divider {
+            margin: 24px 0;
+            text-align: center;
+        }
+        
+        .divider span {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .google-button {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .google-button:hover {
+            background: var(--bg-secondary);
+            border-color: var(--border-hover);
+            transform: translateY(-1px);
+        }
+        
+        .google-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .google-icon {
+            flex-shrink: 0;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .auth-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .auth-link:hover {
+            color: #5a67d8;
+        }
+        
+        .home-link {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        
+        .home-link:hover {
+            color: var(--text-primary);
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: var(--bg-form);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .home-link i {
+            font-size: 16px;
+        }
+        
+        @media (max-width: 480px) {
+            .auth-form {
+                padding: 24px;
+            }
+            
+            .home-link {
+                top: 16px;
+                left: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="home-link">
+        <i class="fas fa-arrow-left"></i>
+        Bosh sahifa
+    </a>
+    
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+    
+    <div class="auth-container">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <img src="/src/aspiro_ai_night.png" alt="Aspiro AI">
+            </div>
+            <h1 class="auth-title">Aspiro AI'ga xush kelibsiz</h1>
+            <p class="auth-subtitle">Hisobingizga kirish uchun ma'lumotlaringizni kiriting</p>
+        </div>
+        
+        <div class="auth-form">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="example@email.com" required>
+                    <div class="error-message" id="emailError"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="password">Parol</label>
+                    <div class="password-field">
+                        <input type="password" id="password" name="password" class="form-input" placeholder="Parolingizni kiriting" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="passwordIcon"></i>
+                        </button>
+                    </div>
+                    <div class="error-message" id="passwordError"></div>
+                </div>
+                
+                <div class="error-message" id="generalError"></div>
+                <div class="success-message" id="successMessage"></div>
+                
+                <button type="submit" class="auth-button" id="loginButton">
+                    <span class="loading-spinner" id="loadingSpinner"></span>
+                    Kirish
+                </button>
+            </form>
+            
+            <div class="divider">
+                <span>yoki</span>
+            </div>
+            
+            <button class="google-button" id="googleLoginBtn">
+                <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Google bilan kirish
+            </button>
+        </div>
+        
+        <div class="auth-footer">
+            Hisobingiz yo'qmi? <a href="/register-page" class="auth-link">Ro'yxatdan o'ting</a>
+        </div>
+    </div>
+    
+    <script>
+        // Password toggle functionality
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const passwordIcon = document.getElementById('passwordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordIcon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                passwordIcon.className = 'fas fa-eye';
+            }
+        }
+        
+        // Form validation and submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const loginButton = document.getElementById('loginButton');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            // Clear previous errors
+            clearErrors();
+            
+            // Validate form
+            if (!validateForm(email, password)) {
+                return;
+            }
+            
+            // Show loading state
+            loginButton.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+            loginButton.textContent = 'Kirilmoqda...';
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Store token and user info
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user_info', JSON.stringify(data.user_info));
+                    
+                    // Show success message
+                    showSuccess('Muvaffaqiyatli kirildi! Yo\'naltirilmoqda...');
+                    
+                    // Redirect to chat page
+                    setTimeout(() => {
+                        window.location.href = '/chat';
+                    }, 1500);
+                    
+                } else {
+                    showError('generalError', data.detail || 'Email yoki parol noto\'g\'ri');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('generalError', 'Serverga ulanishda xatolik. Iltimos, qayta urinib ko\'ring.');
+            } finally {
+                // Hide loading state
+                loginButton.disabled = false;
+                loadingSpinner.style.display = 'none';
+                loginButton.textContent = 'Kirish';
+            }
+        });
+        
+        function validateForm(email, password) {
+            let isValid = true;
+            
+            // Email validation
+            if (!email) {
+                showError('emailError', 'Email manzil kiritilmagan');
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                showError('emailError', 'Noto\'g\'ri email format');
+                isValid = false;
+            }
+            
+            // Password validation
+            if (!password) {
+                showError('passwordError', 'Parol kiritilmagan');
+                isValid = false;
+            } else if (password.length < 6) {
+                showError('passwordError', 'Parol kamida 6 belgidan iborat bo\'lishi kerak');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+        
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+                
+                // Add error styling to input
+                const input = errorElement.previousElementSibling;
+                if (input && input.classList.contains('form-input')) {
+                    input.classList.add('error');
+                }
+            }
+        }
+        
+        function showSuccess(message) {
+            const successElement = document.getElementById('successMessage');
+            if (successElement) {
+                successElement.textContent = message;
+                successElement.style.display = 'block';
+            }
+        }
+        
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error-message');
+            errorElements.forEach(element => {
+                element.style.display = 'none';
+                element.textContent = '';
+            });
+            
+            const successElements = document.querySelectorAll('.success-message');
+            successElements.forEach(element => {
+                element.style.display = 'none';
+                element.textContent = '';
+            });
+            
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.classList.remove('error');
+            });
+        }
+        
+        // Clear errors on input
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('input', clearErrors);
+        });
+        
+        // Google OAuth initialization
+        // Google OAuth initialization
+window.onload = function () {
+    // Check if Google OAuth is available
+    if (typeof google !== 'undefined' && google.accounts) {
+        google.accounts.id.initialize({
+            client_id: "42888588255-sr6oa7o528j3gnm91j670p6cjspbsguq.apps.googleusercontent.com", // Replace with your actual Client ID
+            callback: handleGoogleLogin
+        });
+        
+        // Add click handler for Google button
+        const googleBtn = document.getElementById('googleLoginBtn');
+        googleBtn.addEventListener('click', () => {
+            google.accounts.id.prompt();
+        });
+    } else {
+        // Google script not loaded
+        const googleBtn = document.getElementById('googleLoginBtn');
+        googleBtn.addEventListener('click', () => {
+            showError('generalError', 'Google OAuth yuklanmadi. Sahifani yangilab ko\'ring.');
+        });
+    }
+};
+
+        // Google login handler
+        async function handleGoogleLogin(response) {
+            const googleLoginBtn = document.getElementById('googleLoginBtn');
+            try {
+                googleLoginBtn.disabled = true;
+                googleLoginBtn.innerHTML = '<span class="loading-spinner" style="display: inline-block;"></span> Google bilan kirilmoqda...';
+                clearErrors();
+                
+                const loginResponse = await fetch('/auth/google', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        credential: response.credential 
+                    }),
+                });
+                
+                const data = await loginResponse.json();
+                
+                if (loginResponse.ok) {
+                    // Store token and user info
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user_info', JSON.stringify(data.user_info));
+                    
+                    // Show success message
+                    showSuccess('Google bilan muvaffaqiyatli kirildi! Yo\'naltirilmoqda...');
+                    
+                    // Redirect to chat page
+                    setTimeout(() => {
+                        window.location.href = '/chat';
+                    }, 1500);
+                } else {
+                    showError('generalError', data.detail || 'Google bilan kirish xatosi');
+                }
+            } catch (error) {
+                console.error('Google login error:', error);
+                showError('generalError', 'Google bilan kirish xatosi. Qayta urinib ko\'ring.');
+            } finally {
+                googleLoginBtn.disabled = false;
+                googleLoginBtn.innerHTML = `
+                    <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Google bilan kirish
+                `;
+            }
+        }
+
+
+
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.body;
+        
+        // Check for saved theme preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            themeIcon.className = 'fas fa-sun';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            
+            if (isDark) {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // Check if user is already logged in
+        if (localStorage.getItem('access_token')) {
+            window.location.href = '/chat';
+        }
+    </script>
+</body>
+</html> 

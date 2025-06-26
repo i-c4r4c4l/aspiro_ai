@@ -14,6 +14,10 @@ const quickToggle = document.getElementById('quickToggle');
 const assistantMenu = document.getElementById('assistantMenu');
 const menuOverlay = document.getElementById('menuOverlay');
 
+// Authentication state
+let currentUser = null;
+let accessToken = null;
+
 // Chat state
 let isTyping = false;
 let chatHistory = [];
@@ -34,15 +38,115 @@ function isMobileDevice() {
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication first
+    checkAuthentication();
+    
     initializeTheme();
     loadChatHistory();
     setupEventListeners();
+    setupUserEventListeners();
+    updateUserInterface();
     
     // Only focus input on load for non-mobile devices
     if (!isMobileDevice()) {
         messageInput.focus();
     }
 });
+
+// Authentication Functions
+function checkAuthentication() {
+    accessToken = localStorage.getItem('access_token');
+    const userInfo = localStorage.getItem('user_info');
+    
+    if (!accessToken) {
+        // No token, redirect to login
+        window.location.href = '/login-page';
+        return;
+    }
+    
+    if (userInfo) {
+        try {
+            currentUser = JSON.parse(userInfo);
+        } catch (e) {
+            console.error('Error parsing user info:', e);
+            logout();
+            return;
+        }
+    }
+    
+    // Verify token is still valid
+    verifyToken();
+}
+
+async function verifyToken() {
+    try {
+        const response = await fetch('/me', {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Token is invalid, redirect to login
+                logout();
+                return;
+            }
+        }
+        
+        const userData = await response.json();
+        currentUser = userData;
+        localStorage.setItem('user_info', JSON.stringify(userData));
+        
+    } catch (error) {
+        console.error('Error verifying token:', error);
+        // Don't logout on network errors, just log the error
+    }
+}
+
+function logout() {
+    // Clear local storage
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_info');
+    
+    // Clear state
+    accessToken = null;
+    currentUser = null;
+    
+    // Redirect to login page
+    window.location.href = '/login-page';
+}
+
+function updateUserInterface() {
+    if (currentUser) {
+        // Update welcome message if it exists
+        const welcomeMessage = document.querySelector('.welcome-message .message');
+        if (welcomeMessage) {
+            welcomeMessage.innerHTML = `<p>Salom ${currentUser.full_name}! Men Aspiro AI man. Ingliz tili bo'yicha har qanday savolingizga javob beraman. Qanday yordam berishim mumkin? 🎓</p>`;
+        }
+        
+        // Add user info to menu if needed
+        updateMenuWithUserInfo();
+    }
+}
+
+function updateMenuWithUserInfo() {
+    const menuHeader = document.querySelector('.menu-header .menu-title');
+    if (menuHeader && currentUser) {
+        menuHeader.innerHTML = `
+            <h3>Aspiro AI</h3>
+            <p>${currentUser.full_name}</p>
+            <small>${currentUser.subscription_plan} rejasi</small>
+        `;
+    }
+}
+
+function getAuthHeaders() {
+    return {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+    };
+}
 
 // Theme Management
 function initializeTheme() {
@@ -96,14 +200,23 @@ function setupEventListeners() {
     themeToggle.addEventListener('click', toggleTheme);
     
     // Floating assistant - toggle menu
-    floatingAssistant.addEventListener('click', function() {
-        toggleAssistantMenu();
-    });
+    if (floatingAssistant) {
+        floatingAssistant.addEventListener('click', function() {
+            console.log('Floating assistant clicked'); // Debug log
+            toggleAssistantMenu();
+        });
+    } else {
+        console.error('Floating assistant element not found');
+    }
     
     // Menu overlay - close menu when clicked
-    menuOverlay.addEventListener('click', function() {
-        closeAssistantMenu();
-    });
+    if (menuOverlay) {
+        menuOverlay.addEventListener('click', function() {
+            closeAssistantMenu();
+        });
+    } else {
+        console.error('Menu overlay element not found');
+    }
     
     // Modal event listeners
     document.getElementById('closeHistoryModal').addEventListener('click', function() {
@@ -154,10 +267,53 @@ function setupEventListeners() {
         closeAssistantMenu();
     });
     
-    document.getElementById('aboutBtn').addEventListener('click', function() {
-        showAbout();
-        closeAssistantMenu();
-    });
+    // aboutBtn was removed in the new menu structure
+    // document.getElementById('aboutBtn').addEventListener('click', function() {
+    //     showAbout();
+    //     closeAssistantMenu();
+    // });
+    
+    // Add logout functionality
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            logout();
+        });
+    }
+
+    // New user-related menu items
+    const profileBtn = document.getElementById('profileBtn');
+    const upgradeBtn = document.getElementById('upgradeBtn');
+    const usageStatsBtn = document.getElementById('usageStatsBtn');
+    const feedbackBtn = document.getElementById('feedbackBtn');
+    
+    if (profileBtn) {
+        profileBtn.addEventListener('click', function() {
+            showProfile();
+            closeAssistantMenu();
+        });
+    }
+    
+    if (upgradeBtn) {
+        upgradeBtn.addEventListener('click', function() {
+            showUpgrade();
+            closeAssistantMenu();
+        });
+    }
+    
+    if (usageStatsBtn) {
+        usageStatsBtn.addEventListener('click', function() {
+            showUsageStats();
+            closeAssistantMenu();
+        });
+    }
+    
+    if (feedbackBtn) {
+        feedbackBtn.addEventListener('click', function() {
+            showFeedback();
+            closeAssistantMenu();
+        });
+    }
     
     // Auto-resize textarea and update char count
     messageInput.addEventListener('input', function() {
@@ -231,6 +387,12 @@ function handleSendMessage() {
 async function sendMessage(message) {
     if (isTyping) return;
     
+    // Check authentication before sending
+    if (!accessToken) {
+        logout();
+        return;
+    }
+    
     // Collapse quick actions after first message
     if (isFirstMessage) {
         collapseQuickActions();
@@ -251,16 +413,19 @@ async function sendMessage(message) {
     setInputState(false);
     
     try {
-        // Send to API
+        // Send to API with authentication
         const response = await fetch('/chat', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({ message: message })
         });
         
         if (!response.ok) {
+            if (response.status === 401) {
+                // Token expired, redirect to login
+                logout();
+                return;
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
@@ -449,6 +614,11 @@ function collapseQuickActions() {
 
 // Assistant Menu Functions
 function toggleAssistantMenu() {
+    if (!assistantMenu) {
+        console.error('Assistant menu element not found');
+        return;
+    }
+    
     if (assistantMenu.classList.contains('show')) {
         closeAssistantMenu();
     } else {
@@ -457,6 +627,11 @@ function toggleAssistantMenu() {
 }
 
 function openAssistantMenu() {
+    if (!assistantMenu || !menuOverlay || !floatingAssistant) {
+        console.error('Required menu elements not found');
+        return;
+    }
+    
     assistantMenu.classList.add('show');
     menuOverlay.classList.add('show');
     floatingAssistant.classList.add('menu-open');
@@ -464,6 +639,11 @@ function openAssistantMenu() {
 }
 
 function closeAssistantMenu() {
+    if (!assistantMenu || !menuOverlay || !floatingAssistant) {
+        console.error('Required menu elements not found');
+        return;
+    }
+    
     assistantMenu.classList.remove('show');
     menuOverlay.classList.remove('show');
     floatingAssistant.classList.remove('menu-open');
@@ -1465,6 +1645,12 @@ function improveMessage(button) {
 async function sendMessageWithAttachments(message) {
     if (isTyping) return;
     
+    // Check authentication before sending
+    if (!accessToken) {
+        logout();
+        return;
+    }
+    
     // Collapse quick actions after first message
     if (isFirstMessage) {
         collapseQuickActions();
@@ -1490,16 +1676,24 @@ async function sendMessageWithAttachments(message) {
         formData.append('message', message);
         
         attachmentsToSend.forEach((file, index) => {
-            formData.append(`file_${index}`, file.file);
+            formData.append('files', file.file);
         });
         
-        // Send to API
-        const response = await fetch('/chat', {
+        // Send to API with authentication
+        const response = await fetch('/chat-with-files', {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            },
             body: formData
         });
         
         if (!response.ok) {
+            if (response.status === 401) {
+                // Token expired, redirect to login
+                logout();
+                return;
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
@@ -2086,5 +2280,294 @@ function translateProverb() {
                 <p>Maqolni tarjima qilishda xatolik yuz berdi. Qayta urinib ko'ring.</p>
             </div>
         `);
+    });
+}
+
+// Enhanced User Interface Functions
+function updateUserInterface() {
+    if (currentUser) {
+        // Update menu user info only
+        const menuUserName = document.getElementById('menuUserName');
+        const menuUserEmail = document.getElementById('menuUserEmail');
+        const menuUserPlan = document.getElementById('menuUserPlan');
+        
+        if (menuUserName) menuUserName.textContent = currentUser.full_name;
+        if (menuUserEmail) menuUserEmail.textContent = currentUser.email;
+        if (menuUserPlan) menuUserPlan.textContent = `${currentUser.subscription_plan} Plan`;
+        
+        // Update welcome message
+        const welcomeMessage = document.querySelector('.welcome-message .message');
+        if (welcomeMessage) {
+            welcomeMessage.innerHTML = `<p>Salom ${currentUser.full_name}! Men Aspiro AI man. Ingliz tili bo'yicha har qanday savolingizga javob beraman. Qanday yordam berishim mumkin? 🎓</p>`;
+        }
+        
+        // Load user stats
+        loadUserStats();
+    }
+}
+
+// Profile Functions
+function showProfile() {
+    if (!currentUser) return;
+    
+    // Populate profile modal with user data
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const profileJoinDate = document.getElementById('profileJoinDate');
+    const profilePlan = document.getElementById('profilePlan');
+    
+    if (profileName) profileName.value = currentUser.full_name;
+    if (profileEmail) profileEmail.value = currentUser.email;
+    if (profileJoinDate) {
+        const joinDate = new Date(currentUser.created_at).toLocaleDateString('uz-UZ');
+        profileJoinDate.value = joinDate;
+    }
+    if (profilePlan) profilePlan.textContent = currentUser.subscription_plan;
+    
+    showModal('profileModal');
+}
+
+function editProfile() {
+    const profileName = document.getElementById('profileName');
+    const editBtn = document.getElementById('editProfileBtn');
+    const saveBtn = document.getElementById('saveProfileBtn');
+    
+    if (profileName) {
+        profileName.removeAttribute('readonly');
+        profileName.focus();
+    }
+    
+    if (editBtn) editBtn.style.display = 'none';
+    if (saveBtn) saveBtn.style.display = 'inline-block';
+}
+
+async function saveProfile() {
+    const profileName = document.getElementById('profileName');
+    const editBtn = document.getElementById('editProfileBtn');
+    const saveBtn = document.getElementById('saveProfileBtn');
+    
+    if (!profileName) return;
+    
+    const newName = profileName.value.trim();
+    if (!newName) {
+        showNotification('Ism bo\'sh bo\'lishi mumkin emas');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/update-profile', {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                full_name: newName
+            })
+        });
+        
+        if (response.ok) {
+            const updatedUser = await response.json();
+            currentUser = updatedUser;
+            localStorage.setItem('user_info', JSON.stringify(updatedUser));
+            
+            // Update UI
+            updateUserInterface();
+            
+            showNotification('Profil muvaffaqiyatli yangilandi');
+        } else {
+            showNotification('Profil yangilanmadi. Qayta urinib ko\'ring.');
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        showNotification('Xatolik yuz berdi. Qayta urinib ko\'ring.');
+    }
+    
+    // Reset form state
+    if (profileName) profileName.setAttribute('readonly', true);
+    if (editBtn) editBtn.style.display = 'inline-block';
+    if (saveBtn) saveBtn.style.display = 'none';
+}
+
+// Usage Stats Functions
+async function loadUserStats() {
+    try {
+        const response = await fetch('/user-stats', {
+            headers: getAuthHeaders()
+        });
+        
+        if (response.ok) {
+            const stats = await response.json();
+            updateStatsDisplay(stats);
+        }
+    } catch (error) {
+        console.error('Error loading user stats:', error);
+    }
+}
+
+function updateStatsDisplay(stats) {
+    const totalChats = document.getElementById('totalChats');
+    const totalMessages = document.getElementById('totalMessages');
+    const totalTime = document.getElementById('totalTime');
+    const streakDays = document.getElementById('streakDays');
+    
+    if (totalChats) totalChats.textContent = stats.total_chats || 0;
+    if (totalMessages) totalMessages.textContent = stats.total_messages || 0;
+    if (totalTime) totalTime.textContent = `${Math.round((stats.total_time || 0) / 3600)} soat`;
+    if (streakDays) streakDays.textContent = stats.streak_days || 0;
+}
+
+function showUsageStats() {
+    loadUserStats();
+    showModal('usageStatsModal');
+}
+
+// Upgrade Functions
+function showUpgrade() {
+    showModal('upgradeModal');
+}
+
+// Feedback Functions
+function showFeedback() {
+    // Reset feedback form
+    const stars = document.querySelectorAll('.star');
+    const feedbackType = document.getElementById('feedbackType');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+    
+    stars.forEach(star => star.classList.remove('active'));
+    if (feedbackType) feedbackType.value = 'general';
+    if (feedbackMessage) feedbackMessage.value = '';
+    
+    showModal('feedbackModal');
+}
+
+function handleStarRating(event) {
+    const clickedStar = event.target;
+    const rating = parseInt(clickedStar.dataset.rating);
+    const stars = document.querySelectorAll('.star');
+    
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('active');
+        } else {
+            star.classList.remove('active');
+        }
+    });
+}
+
+async function submitFeedback() {
+    const activeStars = document.querySelectorAll('.star.active');
+    const feedbackType = document.getElementById('feedbackType');
+    const feedbackMessage = document.getElementById('feedbackMessage');
+    
+    const rating = activeStars.length;
+    const type = feedbackType ? feedbackType.value : 'general';
+    const message = feedbackMessage ? feedbackMessage.value.trim() : '';
+    
+    if (!message) {
+        showNotification('Iltimos, fikr-mulohazangizni yozing');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/submit-feedback', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+                rating: rating,
+                type: type,
+                message: message
+            })
+        });
+        
+        if (response.ok) {
+            showNotification('Fikr-mulohazangiz uchun rahmat!');
+            hideModal('feedbackModal');
+        } else {
+            showNotification('Xatolik yuz berdi. Qayta urinib ko\'ring.');
+        }
+    } catch (error) {
+        console.error('Error submitting feedback:', error);
+        showNotification('Xatolik yuz berdi. Qayta urinib ko\'ring.');
+    }
+}
+
+// This DOMContentLoaded listener is removed to avoid conflicts with the main one
+
+function setupUserEventListeners() {
+    // User-related menu items - these are handled in main setupEventListeners now
+    // const profileBtn = document.getElementById('profileBtn');
+    // const upgradeBtn = document.getElementById('upgradeBtn');
+    // const usageStatsBtn = document.getElementById('usageStatsBtn');
+    // const feedbackBtn = document.getElementById('feedbackBtn');
+    
+    // if (profileBtn) profileBtn.addEventListener('click', showProfile);
+    // if (upgradeBtn) upgradeBtn.addEventListener('click', showUpgrade);
+    // if (usageStatsBtn) usageStatsBtn.addEventListener('click', showUsageStats);
+    // if (feedbackBtn) feedbackBtn.addEventListener('click', showFeedback);
+    
+    // Profile modal buttons
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const upgradeFromProfile = document.getElementById('upgradeFromProfile');
+    
+    if (editProfileBtn) editProfileBtn.addEventListener('click', editProfile);
+    if (saveProfileBtn) saveProfileBtn.addEventListener('click', saveProfile);
+    if (upgradeFromProfile) {
+        upgradeFromProfile.addEventListener('click', function() {
+            hideModal('profileModal');
+            showUpgrade();
+        });
+    }
+    
+    // Feedback modal elements
+    const stars = document.querySelectorAll('.star');
+    const submitFeedbackBtn = document.getElementById('submitFeedbackBtn');
+    const cancelFeedbackBtn = document.getElementById('cancelFeedbackBtn');
+    
+    stars.forEach(star => {
+        star.addEventListener('click', handleStarRating);
+    });
+    
+    if (submitFeedbackBtn) submitFeedbackBtn.addEventListener('click', submitFeedback);
+    if (cancelFeedbackBtn) {
+        cancelFeedbackBtn.addEventListener('click', function() {
+            hideModal('feedbackModal');
+        });
+    }
+    
+    // Modal close buttons for new modals
+    const closeProfileModal = document.getElementById('closeProfileModal');
+    const closeUsageStatsModal = document.getElementById('closeUsageStatsModal');
+    const closeUpgradeModal = document.getElementById('closeUpgradeModal');
+    const closeFeedbackModal = document.getElementById('closeFeedbackModal');
+    
+    if (closeProfileModal) {
+        closeProfileModal.addEventListener('click', function() {
+            hideModal('profileModal');
+        });
+    }
+    if (closeUsageStatsModal) {
+        closeUsageStatsModal.addEventListener('click', function() {
+            hideModal('usageStatsModal');
+        });
+    }
+    if (closeUpgradeModal) {
+        closeUpgradeModal.addEventListener('click', function() {
+            hideModal('upgradeModal');
+        });
+    }
+    if (closeFeedbackModal) {
+        closeFeedbackModal.addEventListener('click', function() {
+            hideModal('feedbackModal');
+        });
+    }
+    
+    // Add general modal close functionality for all modals
+    const allCloseButtons = document.querySelectorAll('.modal-close');
+    allCloseButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) {
+                hideModal(modal.id);
+            }
+        });
     });
 } 

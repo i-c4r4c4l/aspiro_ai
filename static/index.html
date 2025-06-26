@@ -117,12 +117,15 @@
     <!-- Assistant Menu -->
     <div class="assistant-menu" id="assistantMenu">
         <div class="menu-header">
-            <div class="menu-logo">
-                <img src="/src/aspiro_ai.png" alt="Aspiro AI" class="menu-logo-img">
-            </div>
-            <div class="menu-title">
-                <h3>Aspiro AI</h3>
-                <p>Ingliz tili yordamchisi</p>
+            <div class="menu-user-info">
+                <div class="menu-user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="menu-user-details">
+                    <h3 id="menuUserName">Foydalanuvchi</h3>
+                    <p id="menuUserEmail">user@example.com</p>
+                    <span class="menu-user-plan" id="menuUserPlan">Free Plan</span>
+                </div>
             </div>
         </div>
         <div class="menu-divider"></div>
@@ -135,10 +138,20 @@
                 <i class="fas fa-history"></i>
                 <span>Suhbat tarixi</span>
             </button>
-            <button class="menu-item" id="clearHistoryBtn">
-                <i class="fas fa-trash-alt"></i>
-                <span>Tarixni tozalash</span>
+            <div class="menu-divider-small"></div>
+            <button class="menu-item" id="profileBtn">
+                <i class="fas fa-user-circle"></i>
+                <span>Profil</span>
             </button>
+            <button class="menu-item" id="upgradeBtn">
+                <i class="fas fa-crown"></i>
+                <span>Premium'ga o'tish</span>
+            </button>
+            <button class="menu-item" id="usageStatsBtn">
+                <i class="fas fa-chart-bar"></i>
+                <span>Foydalanish statistikasi</span>
+            </button>
+            <div class="menu-divider-small"></div>
             <button class="menu-item" id="settingsBtn">
                 <i class="fas fa-cog"></i>
                 <span>Sozlamalar</span>
@@ -147,9 +160,18 @@
                 <i class="fas fa-question-circle"></i>
                 <span>Yordam</span>
             </button>
-            <button class="menu-item" id="aboutBtn">
-                <i class="fas fa-info-circle"></i>
-                <span>Dastur haqida</span>
+            <button class="menu-item" id="feedbackBtn">
+                <i class="fas fa-comment-dots"></i>
+                <span>Fikr-mulohaza</span>
+            </button>
+            <div class="menu-divider-small"></div>
+            <button class="menu-item" id="clearHistoryBtn">
+                <i class="fas fa-trash-alt"></i>
+                <span>Tarixni tozalash</span>
+            </button>
+            <button class="menu-item" id="logoutBtn" style="color: #e53e3e;">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Chiqish</span>
             </button>
         </div>
         <div class="menu-divider"></div>
@@ -272,6 +294,192 @@
                         <li>O'zbek tilida tushuntirishlar olasiz</li>
                     </ul>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-circle"></i> Profil</h3>
+                <button class="modal-close" id="closeProfileModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="profile-section">
+                    <div class="profile-avatar-section">
+                        <div class="profile-avatar-large">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <button class="btn btn-secondary btn-sm">Avatar o'zgartirish</button>
+                    </div>
+                    <div class="profile-info">
+                        <div class="form-group">
+                            <label>To'liq ism</label>
+                            <input type="text" id="profileName" class="form-input" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profileEmail" class="form-input" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Ro'yxatdan o'tgan sana</label>
+                            <input type="text" id="profileJoinDate" class="form-input" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Rejangiz</label>
+                            <div class="plan-info">
+                                <span class="plan-badge" id="profilePlan">Free</span>
+                                <button class="btn btn-primary btn-sm" id="upgradeFromProfile">Premium'ga o'tish</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="editProfileBtn">Tahrirlash</button>
+                <button class="btn btn-primary" id="saveProfileBtn" style="display: none;">Saqlash</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Usage Stats Modal -->
+    <div class="modal" id="usageStatsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-chart-bar"></i> Foydalanish Statistikasi</h3>
+                <button class="modal-close" id="closeUsageStatsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4 id="totalChats">0</h4>
+                            <p>Jami suhbatlar</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4 id="totalMessages">0</h4>
+                            <p>Yuborilgan xabarlar</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4 id="totalTime">0 soat</h4>
+                            <p>Jami vaqt</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4 id="streakDays">0</h4>
+                            <p>Ketma-ket kunlar</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="usage-chart">
+                    <h4>So'nggi 7 kun faolligi</h4>
+                    <div class="chart-placeholder">
+                        <p>Grafik ma'lumotlari yuklanmoqda...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upgrade Modal -->
+    <div class="modal" id="upgradeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-crown"></i> Premium'ga O'tish</h3>
+                <button class="modal-close" id="closeUpgradeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="upgrade-content">
+                    <div class="current-plan">
+                        <h4>Hozirgi rejangiz: <span class="plan-badge">Free</span></h4>
+                        <p>Premium imkoniyatlardan foydalaning!</p>
+                    </div>
+                    <div class="premium-features">
+                        <h4>Premium imkoniyatlari:</h4>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Cheksiz suhbatlar</li>
+                            <li><i class="fas fa-check"></i> Tezkor javoblar</li>
+                            <li><i class="fas fa-check"></i> Fayl yuklash (PDF, Word, rasm)</li>
+                            <li><i class="fas fa-check"></i> Ovozli xabarlar</li>
+                            <li><i class="fas fa-check"></i> IELTS maxsus trening</li>
+                            <li><i class="fas fa-check"></i> Talaffuz baholash</li>
+                            <li><i class="fas fa-check"></i> Batafsil statistika</li>
+                        </ul>
+                    </div>
+                    <div class="pricing-plans">
+                        <div class="plan-card" onclick="window.location.href='/pricing'">
+                            <h4>Professional</h4>
+                            <div class="price">99,000<span> so'm/oy</span></div>
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); window.location.href='/pricing'">Batafsil ko'rish</button>
+                        </div>
+                        <div class="plan-card recommended" onclick="window.location.href='/pricing'">
+                            <div class="plan-badge">Tavsiya etiladi</div>
+                            <h4>Premium</h4>
+                            <div class="price">199,000<span> so'm/oy</span></div>
+                            <div class="savings">Yillik to'lovda 20% tejash!</div>
+                            <button class="btn btn-primary" onclick="event.stopPropagation(); window.location.href='/pricing'">Batafsil ko'rish</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Feedback Modal -->
+    <div class="modal" id="feedbackModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-comment-dots"></i> Fikr-mulohaza</h3>
+                <button class="modal-close" id="closeFeedbackModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="feedback-form">
+                    <div class="form-group">
+                        <label>Baholash</label>
+                        <div class="rating-stars">
+                            <span class="star" data-rating="1">⭐</span>
+                            <span class="star" data-rating="2">⭐</span>
+                            <span class="star" data-rating="3">⭐</span>
+                            <span class="star" data-rating="4">⭐</span>
+                            <span class="star" data-rating="5">⭐</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Fikr-mulohaza turi</label>
+                        <select id="feedbackType" class="form-select">
+                            <option value="bug">Xatolik haqida</option>
+                            <option value="feature">Yangi funksiya taklifi</option>
+                            <option value="improvement">Yaxshilash taklifi</option>
+                            <option value="general">Umumiy fikr</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Xabaringiz</label>
+                        <textarea id="feedbackMessage" class="form-textarea" rows="5" placeholder="Fikr-mulohazangizni yozing..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelFeedbackBtn">Bekor qilish</button>
+                <button class="btn btn-primary" id="submitFeedbackBtn">Yuborish</button>
             </div>
         </div>
     </div>
